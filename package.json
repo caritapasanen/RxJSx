@@ -3,14 +3,14 @@
   "title": "Reactive Extensions for JavaScript (RxJS)",
   "description": "Library for composing asynchronous and event-based operations in JavaScript",
   "version": "0.0.1",
-  "homepage": "https://github.com/Reactive-Extensions/RxJS-Experimental",
+  "homepage": "https://github.com/trxcllnt/RxJsX",
   "author": {
     "name": "Microsoft Open Technologies",
-    "url": "https://github.com/Reactive-Extensions/RxJS-Experimental/blob/master/authors.txt"
+    "url": "https://github.com/trxcllnt/RxJsX/blob/master/authors.txt"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Reactive-Extensions/RxJS-Experimental.git"
+    "url": "https://github.com/trxcllnt/RxJsX.git"
   },
   "licenses": [
     {
@@ -21,19 +21,21 @@
   "jam": {
     "main": "rx.js"
   },
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
     "grunt-cli": "*",
     "grunt": "~0.4.2",
     "grunt-contrib-jshint": "*",
-    "grunt-contrib-connect": "*",    
+    "grunt-contrib-connect": "*",
     "grunt-contrib-uglify": "*",
     "grunt-contrib-concat": "*",
     "grunt-contrib-qunit": "*",
     "grunt-contrib-watch": "*",
     "grunt-saucelabs": "*",
     "grunt-conventional-changelog": "~1.0.0",
-    "load-grunt-tasks": "~0.2.0"    
+    "load-grunt-tasks": "~0.2.0",
+    "browserify": "~3.44.2"
   },
   "keywords": [
     "LINQ",
@@ -41,7 +43,8 @@
     "Reactive",
     "Events"
   ],
-  "main": "rx.node.js",
+  "main": "rx.js",
+  "node": "src/rx.js",
   "scripts": {
     "test": "grunt"
   }
