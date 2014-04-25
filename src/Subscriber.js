@@ -1,5 +1,6 @@
 var Disposable = require('./Disposable'),
     create = require('./support/create'),
+    inherits = require('util').inherits,
     slice = Array.prototype.slice
     ;
 
@@ -7,9 +8,9 @@ function Subscriber(onNext, onError, onCompleted) {
     this.stopped = false;
     this.disposed = false;
     
-    this._onNext = onNext;
-    this._onError = onError;
-    this._onCompleted = onCompleted;
+    this._onNext = onNext.bind(this);
+    this._onError = onError.bind(this);
+    this._onCompleted = onCompleted.bind(this);
     this._disposable = Disposable.create();
 };
 
@@ -90,6 +91,33 @@ Subscriber.prototype.add = function() {
 Subscriber.prototype.remove = function() {
     var disposable = this._disposable;
     disposable.remove.apply(disposable, arguments);
+    return this;
+};
+
+Subscriber.prototype.toImmutable = function() {
+    return new Subscriber(this._onNext, this._onError, this._onCompleted);
+}
+
+Subscriber.prototype.toMutable = function() {
+    return new MutableSubscriber(this._onNext, this._onError, this._onCompleted);
+}
+
+inherits(MutableSubscriber, Subscriber);
+
+function MutableSubscriber() {
+    Subscriber.apply(this, arguments);
+};
+
+MutableSubscriber.prototype.clone = function(overrides) {
+    if(overrides._onNext) {
+        this._onNext = overrides._onNext;
+    }
+    if(overrides._onError) {
+        this._onError = overrides._onError;
+    }
+    if(overrides._onCompleted) {
+        this._onCompleted = overrides._onCompleted;
+    }
     return this;
 };
 

@@ -1,7 +1,7 @@
 module.exports = function scan(seedOrProjection, project) {
     
-    var onNext = this._onNext.bind(this),
-        onCompleted = this._onCompleted.bind(this);
+    var onNext = this._onNext,//.bind(this),
+        onCompleted = this._onCompleted;//.bind(this);
     
     var hasValue = false,
         hasSeed = typeof project !== 'undefined',

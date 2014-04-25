@@ -44,6 +44,7 @@ var values = Rx.Observable.create(function(subscriber) {
         });
     })
 
+console.log('Immutable Subscriber tests.')
 values.subscribe(subscriber);
 valuesMap.subscribe(subscriber);
 valuesFilter.subscribe(subscriber);
@@ -52,3 +53,13 @@ valuesScanMap.subscribe(subscriber);
 valuesScanFilter.subscribe(subscriber);
 valuesScanFilterMap.subscribe(subscriber);
 valuesLetScan.subscribe(subscriber);
+console.log('');
+console.log('Mutable Subscriber tests.');
+values.subscribe(subscriber.toMutable());
+valuesMap.subscribe(subscriber.toMutable());
+valuesFilter.subscribe(subscriber.toMutable());
+valuesScan.subscribe(subscriber.toMutable());
+valuesScanMap.subscribe(subscriber.toMutable());
+valuesScanFilter.subscribe(subscriber.toMutable());
+valuesScanFilterMap.subscribe(subscriber.toMutable());
+valuesLetScan.subscribe(subscriber.toMutable());
