@@ -1,10 +1,10 @@
 var Rx = require('../rx');
 module.exports = Rx.Observable.extend(function scan(accOrProjection, project) {
-    return function(destination) {
-        var hasSeed = typeof project !== 'undefined',
-            hasValue = hasSeed,
-            acc = hasSeed ? accOrProjection : undefined;
+    var hasSeed = typeof project !== 'undefined',
+        acc = hasSeed ? accOrProjection : undefined,
         project = hasSeed ? project : accOrProjection;
+    return function(destination) {
+        var hasValue = hasSeed;
         return {
             onNext: function(x) {
                 if(hasSeed) {
@@ -19,11 +19,10 @@ module.exports = Rx.Observable.extend(function scan(accOrProjection, project) {
             },
             onCompleted: function() {
                 if(hasSeed) {
-                    hasSeed = false;
                     destination.onNext(acc);
                 }
                 destination.onCompleted();
             }
         }
     }
-})
+});

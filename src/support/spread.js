@@ -5,7 +5,7 @@ var concat = Array.prototype.concat
 
 module.exports = function spread(arguments) {
     return flatten(slice.call(arguments));
-}
+};
 
 function flatten(x) {
     return isArray(x) ? flatMap(x, flatten) : x;
