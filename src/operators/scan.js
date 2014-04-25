@@ -8,7 +8,7 @@ module.exports = Rx.Observable.extend(function scan(seedOrProjection, project) {
             acc = seed;
         return {
             onNext: function(x) {
-                if (hasValue || (hasValue = hasSeed)) {
+                if(hasValue || (hasValue = hasSeed)) {
                     destination.onNext(acc = project(acc, x));
                 } else {
                     hasValue = true;
@@ -16,7 +16,7 @@ module.exports = Rx.Observable.extend(function scan(seedOrProjection, project) {
                 }
             },
             onCompleted: function() {
-                if (!hasValue && hasSeed) {
+                if(!hasValue && hasSeed) {
                     destination.onNext(acc);
                 }
                 destination.onCompleted();
