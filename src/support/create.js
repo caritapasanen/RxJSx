@@ -11,4 +11,4 @@ module.exports  = function create(proto) {
         }
         return object;
     }, object);
-}
+};

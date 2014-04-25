@@ -5,6 +5,6 @@ module.exports = function ignore() {
             onNext: noop,
             onError: destination.onError.bind(destination),
             onCompleted: destination.onCompleted.bind(destination)
-        }
-    }
-}
+        };
+    };
+};

@@ -14,11 +14,11 @@ function Subscriber(onNext, onError, onCompleted) {
     if(disposables.length > 0) {
         this._disposable = Disposable.create(disposables);
     }
-}
+};
 
-var subscriberCreate = Subscriber.create = function(onNext, onError, onCompleted) {
+Subscriber.create = function(onNext, onError, onCompleted) {
     return new Subscriber(onNext, onError, onCompleted, slice.call(arguments, 3));
-}
+};
 
 Subscriber.prototype.onNext = function(value) {
     try {
@@ -26,7 +26,7 @@ Subscriber.prototype.onNext = function(value) {
     } catch(e) {
         this.onError(e);
     }
-}
+};
 
 Subscriber.prototype.onError = function(error) {
     try {
@@ -36,7 +36,7 @@ Subscriber.prototype.onError = function(error) {
     } finally {
         this.dispose();
     }
-}
+};
 
 Subscriber.prototype.onCompleted = function() {
     try {
@@ -46,7 +46,7 @@ Subscriber.prototype.onCompleted = function() {
     } finally {
         this.dispose();
     }
-}
+};
 
 Subscriber.prototype.dispose = function() {
     try {
@@ -61,7 +61,7 @@ Subscriber.prototype.dispose = function() {
         this.disposables = undefined;
     }
     return this;
-}
+};
 
 Subscriber.prototype.add = function() {
     var disposable = this._disposable;
@@ -69,7 +69,7 @@ Subscriber.prototype.add = function() {
         disposable.add.apply(disposable, arguments);
     }
     return this;
-}
+};
 
 Subscriber.prototype.remove = function() {
     var disposable = this._disposable;
@@ -80,6 +80,6 @@ Subscriber.prototype.remove = function() {
         }
     }
     return this;
-}
+};
 
 module.exports = Subscriber;

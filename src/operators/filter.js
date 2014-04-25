@@ -6,6 +6,6 @@ module.exports = function filter(selector) {
                     return destination.onNext(x);
                 }
             }
-        }
-    }
-}
+        };
+    };
+};

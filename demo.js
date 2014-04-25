@@ -17,11 +17,13 @@ var values = Rx.Observable.create(function(subscriber) {
         subscriber.onCompleted();
     });
 
-console.log(1);
-values
+var valueScan = values
     .scan({value: 10}, function(acc, x) {
         return { value: acc.value + x.value };
-    })
+    });
+
+console.log(1);
+valueScan
     .filter(function(x) {
         return x.value % 2 != 0;
     })
@@ -39,9 +41,7 @@ values
     .subscribe(subscriber);
 
 function scanner(source) {
-    return source.scan({value: 10}, function(acc, x) {
-        return { value: acc.value + x.value };
-    });
+    return valueScan;
 }
 
 console.log(3);

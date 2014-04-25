@@ -4,6 +4,6 @@ module.exports = function map(project) {
             onNext: function(x) {
                 return destination.onNext(project(x));
             }
-        }
-    }
-}
+        };
+    };
+};

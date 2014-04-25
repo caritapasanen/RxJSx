@@ -1,1 +1,1 @@
-module.exports = function Rx() {}
+module.exports = function Rx() {};

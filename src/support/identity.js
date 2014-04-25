@@ -1,3 +1,3 @@
-module.exports = function identity() {
-    return arguments[0];
-}
+module.exports = function identity(x) {
+    return x;
+};

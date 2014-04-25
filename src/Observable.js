@@ -16,7 +16,7 @@ function Observable(subscribe) {
 
 Observable.create = function(subscribe) {
     return new Observable(subscribe);
-}
+};
 
 function subscribe(subscriber) {
     return fixDisposable(subscriber, this._subscribe(subscriber));
@@ -24,6 +24,6 @@ function subscribe(subscriber) {
 
 Observable.prototype.subscribe = Observable.prototype.forEach = function(subscriber) {
     return subscribe.call(this, subscriber);
-}
+};
 
 module.exports = Observable;
