@@ -1,16 +1,16 @@
 {
-  "name": "rx.experimental",
+  "name": "RxJSx",
   "title": "Reactive Extensions for JavaScript (RxJS)",
   "description": "Library for composing asynchronous and event-based operations in JavaScript",
   "version": "0.0.1",
-  "homepage": "https://github.com/trxcllnt/RxJsX",
+  "homepage": "https://github.com/Applied-Duality/RxJsX",
   "author": {
     "name": "Microsoft Open Technologies",
-    "url": "https://github.com/trxcllnt/RxJsX/blob/master/authors.txt"
+    "url": "https://github.com/Applied-Duality/RxJsX/blob/master/authors.txt"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/trxcllnt/RxJsX.git"
+    "url": "https://github.com/Applied-Duality/RxJsX.git"
   },
   "licenses": [
     {
@@ -21,8 +21,7 @@
   "jam": {
     "main": "rx.js"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "grunt-cli": "*",
     "grunt": "~0.4.2",
@@ -46,6 +45,7 @@
   "main": "rx.js",
   "node": "src/rx.js",
   "scripts": {
-    "test": "grunt"
+    "test": "node demo"
   }
 }
+
