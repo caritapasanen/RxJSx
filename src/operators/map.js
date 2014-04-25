@@ -1,5 +1,4 @@
-var Rx = require('../rx');
-module.exports = Rx.Observable.extend(function map(project) {
+module.exports = function map(project) {
     return function(destination) {
         return {
             onNext: function(x) {
@@ -7,4 +6,4 @@ module.exports = Rx.Observable.extend(function map(project) {
             }
         }
     }
-})
+}

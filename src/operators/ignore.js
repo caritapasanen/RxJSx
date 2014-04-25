@@ -1,6 +1,5 @@
-var Rx = require('../rx'),
-    noop = require('../support/noop');
-module.exports = Rx.Observable.extend(function ignore() {
+var noop = require('../support/noop');
+module.exports = function ignore() {
     return function(destination) {
         return {
             onNext: noop,
@@ -8,4 +7,4 @@ module.exports = Rx.Observable.extend(function ignore() {
             onCompleted: destination.onCompleted.bind(destination)
         }
     }
-});
+}

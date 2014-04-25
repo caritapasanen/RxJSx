@@ -1,5 +1,4 @@
-var Rx = require('../rx');
-module.exports = Rx.Observable.extend(function scan(accOrProjection, project) {
+module.exports = function scan(accOrProjection, project) {
     return function(destination) {
         var hasSeed = typeof project !== 'undefined',
             hasValue = hasSeed,
@@ -26,4 +25,4 @@ module.exports = Rx.Observable.extend(function scan(accOrProjection, project) {
             }
         }
     }
-})
+}

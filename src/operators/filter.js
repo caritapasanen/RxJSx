@@ -1,5 +1,4 @@
-var Rx = require('../rx');
-module.exports = Rx.Observable.extend(function filter(selector) {
+module.exports = function filter(selector) {
     return function(destination) {
         return {
             onNext: function(x) {
@@ -9,4 +8,4 @@ module.exports = Rx.Observable.extend(function filter(selector) {
             }
         }
     }
-});
+}

@@ -1,4 +1,4 @@
 RxJsX
 =====
 
-Lift-based Rx implementation in JavaScript
+Lift-based Rx implementation in JavaScript.
