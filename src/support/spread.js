@@ -1,6 +1,6 @@
-var concat = Array.prototype.concat
-    , slice = Array.prototype.slice
-    , isArray = Array.isArray
+var concat = Array.prototype.concat,
+    slice = Array.prototype.slice,
+    isArray = Array.isArray
     ;
 
 module.exports = function spread(arguments) {
