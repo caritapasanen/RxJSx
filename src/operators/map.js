@@ -7,4 +7,4 @@ module.exports = Rx.Observable.extend(function map(project) {
             }
         }
     }
-})
+});

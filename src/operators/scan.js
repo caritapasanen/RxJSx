@@ -1,16 +1,14 @@
 var Rx = require('../rx');
-module.exports = Rx.Observable.extend(function scan(accOrProjection, project) {
+module.exports = Rx.Observable.extend(function scan(seedOrProjection, project) {
+    var hasSeed = typeof project !== 'undefined',
+        seed = hasSeed ? seedOrProjection : undefined,
+        project = hasSeed ? project : seedOrProjection;
     return function(destination) {
-        var hasSeed = typeof project !== 'undefined',
-            hasValue = hasSeed,
-            acc = hasSeed ? accOrProjection : undefined;
-        project = hasSeed ? project : accOrProjection;
+        var hasValue = false,
+            acc = seed;
         return {
             onNext: function(x) {
-                if(hasSeed) {
-                    hasSeed = false;
-                }
-                if(hasValue) {
+                if(hasValue || (hasValue = hasSeed)) {
                     destination.onNext(acc = project(acc, x));
                 } else {
                     hasValue = true;
@@ -18,12 +16,11 @@ module.exports = Rx.Observable.extend(function scan(accOrProjection, project) {
                 }
             },
             onCompleted: function() {
-                if(hasSeed) {
-                    hasSeed = false;
+                if(!hasValue && hasSeed) {
                     destination.onNext(acc);
                 }
                 destination.onCompleted();
             }
         }
     }
-})
+});

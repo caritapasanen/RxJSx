@@ -20,10 +20,10 @@ function subscribe(subscriber) {
 
 Observable.create = function(subscribe) {
     return new Observable(subscribe);
-}
+};
 
 Observable.prototype.subscribe = Observable.prototype.forEach = function(subscriber) {
     return subscribe.call(this, subscriber);
-}
+};
 
 module.exports = Observable;
