@@ -1,25 +1,28 @@
 module.exports = function scan(seedOrProjection, project) {
-    var hasSeed = typeof project !== 'undefined',
+    
+    var onNext = this._onNext.bind(this),
+        onCompleted = this._onCompleted.bind(this);
+    
+    var hasValue = false,
+        hasSeed = typeof project !== 'undefined',
         seed = hasSeed ? seedOrProjection : undefined,
-        project = hasSeed ? project : seedOrProjection;
-    return function(destination) {
-        var hasValue = false,
-            acc = seed;
-        return {
-            onNext: function(x) {
+        project = hasSeed ? project : seedOrProjection,
+        acc = seed;
+    
+    return this.clone({
+        _onNext: function(x) {
                 if(hasValue || (hasValue = hasSeed)) {
-                    destination.onNext(acc = project(acc, x));
+                    onNext(acc = project(acc, x));
                 } else {
                     hasValue = true;
-                    destination.onNext(acc = x);
+                    onNext(acc = x);
                 }
             },
-            onCompleted: function() {
+        _onCompleted: function() {
                 if(!hasValue && hasSeed) {
-                    destination.onNext(acc);
+                    onNext(acc);
                 }
-                destination.onCompleted();
+                onCompleted();
             }
-        };
-    };
+        });
 };

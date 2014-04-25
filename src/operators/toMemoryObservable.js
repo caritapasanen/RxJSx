@@ -12,7 +12,7 @@ var observableCreate = Observable.createMemoryObservable = function(subscribe) {
     return new MemoryObservable(subscribe);
 };
 
-MemoryObservable.extend = require('../extends/memoryExtend');
+MemoryObservable.extend = require('../extends/extend');
 MemoryObservable.prototype.lift = require('../lifts/memoryLift');
 
 module.exports = function toMemoryObservable() {

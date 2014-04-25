@@ -12,7 +12,7 @@ var observableCreate = Observable.createSpeedyObservable = function(subscribe) {
     return new SpeedyObservable(subscribe);
 };
 
-SpeedyObservable.extend = require('../extends/speedyExtend');
+SpeedyObservable.extend = require('../extends/extend');
 SpeedyObservable.prototype.lift = require('../lifts/speedyLift');
 
 module.exports = function toSpeedyObservable() {

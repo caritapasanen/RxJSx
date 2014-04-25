@@ -1,84 +1,95 @@
 var Disposable = require('./Disposable'),
-    noop = require('./support/noop'),
-    spread = require('./support/spread'),
+    create = require('./support/create'),
     slice = Array.prototype.slice
     ;
 
 function Subscriber(onNext, onError, onCompleted) {
-    this._onNext = onNext || noop;
-    this._onError = onError || noop;
-    this._onCompleted = onCompleted || noop;
+    this.stopped = false;
+    this.disposed = false;
     
-    var disposables = spread(slice.call(arguments, 3));
-    
-    if(disposables.length > 0) {
-        this._disposable = Disposable.create(disposables);
-    }
+    this._onNext = onNext;
+    this._onError = onError;
+    this._onCompleted = onCompleted;
+    this._disposable = Disposable.create();
 };
 
 Subscriber.create = function(onNext, onError, onCompleted) {
-    return new Subscriber(onNext, onError, onCompleted, slice.call(arguments, 3));
+    return new Subscriber(onNext, onError, onCompleted);
+};
+
+Subscriber.prototype.clone = function(overrides) {
+    return create(this, overrides);
 };
 
 Subscriber.prototype.onNext = function(value) {
-    try {
-        this._onNext(value);
-    } catch(e) {
-        this.onError(e);
+    if(this.disposed === false) {
+        try {
+            if(typeof this._onNext !== 'undefined') {
+                this._onNext(value);
+            }
+        } catch(e) {
+            this.onError(e);
+        }
     }
 };
 
 Subscriber.prototype.onError = function(error) {
-    try {
-        this._onError(error);
-    } catch(e) {
-        throw e;
-    } finally {
-        this.dispose();
+    if(this.disposed === false) {
+        this.stopped = true;
+        try {
+            if(typeof this._onError !== 'undefined') {
+                this._onError(error);
+            }
+        } catch(e) {
+            throw e;
+        }
     }
 };
 
 Subscriber.prototype.onCompleted = function() {
-    try {
-        this._onCompleted();
-    } catch(e) {
-        throw e;
-    } finally {
-        this.dispose();
+    if(this.disposed === false) {
+        this.stopped = true;
+        try {
+            if(typeof this._onCompleted !== 'undefined') {
+                this._onCompleted();
+            }
+        } catch(e) {
+            throw e;
+        }
     }
 };
 
+Subscriber.prototype.activate = function() {
+    this.stopped = false;
+    this.disposed = false;
+    return this;
+}
+
 Subscriber.prototype.dispose = function() {
-    try {
-        var disposable = this._disposable;
-        if(typeof disposable !== 'undefined') {
-            this._disposable = undefined;
-            disposable.dispose();
+    if(this.disposed === false) {
+        this.stopped = true;
+        this.disposed = true;
+        try {
+            this._disposable.dispose();
+        } catch(e) {
+            throw e;
         }
-    } catch(e) {
-        throw e;
-    } finally {
-        this.disposables = undefined;
     }
     return this;
 };
 
 Subscriber.prototype.add = function() {
     var disposable = this._disposable;
-    if(typeof disposable !== 'undefined') {
-        disposable.add.apply(disposable, arguments);
+    disposable.add.apply(disposable, arguments);
+    if(this.disposed === true) {
+        disposable.dispose();
     }
     return this;
 };
 
 Subscriber.prototype.remove = function() {
     var disposable = this._disposable;
-    if(typeof disposable !== 'undefined') {
-        disposable.remove.apply(disposable, arguments);
-        if(disposable.length === 0) {
-            this._disposable = undefined;
-        }
-    }
+    disposable.remove.apply(disposable, arguments);
     return this;
 };
 

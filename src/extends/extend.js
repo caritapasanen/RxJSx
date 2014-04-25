@@ -1,11 +1,12 @@
-// A generic `extend` implementation. Slower on create because
-// it calls `lift` directly, introducing a function call to
-// retrieve the n-arity transformation.
+var Rx = require('../rx'),
+    create = require('../support/create'),
+    subscriberCreate = Rx.Subscriber.create;
+
 module.exports = function extend(transform) {
     return function() {
         var args = arguments;
-        return this.lift(function() {
-            return transform.apply(null, args);
+        return this.lift(function(destination) {
+            return transform.apply(destination, args);
         });
     }
 }

@@ -5,11 +5,9 @@ var Rx = require('../rx'),
 module.exports = function memoryLift(transform) {
     return create(this, {
         source: this,
-        getSubscriber: transform(),
-        subscribe: function(subscriber) {
-            subscriber = (subscriber && typeof subscriber === 'object') ?
-                subscriber : subscriberCreate.apply(null, arguments);
-            return this.source.subscribe(create(subscriber, this.getSubscriber(subscriber)));
+        transform: transform,
+        _subscribe: function(destination) {
+            return this.source.subscribe(this.transform(destination));
         }
     });
-}
+};

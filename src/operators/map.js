@@ -1,9 +1,8 @@
 module.exports = function map(project) {
-    return function(destination) {
-        return {
-            onNext: function(x) {
-                return destination.onNext(project(x));
-            }
-        };
-    };
+    var onNext = this._onNext.bind(this);
+    return this.clone({
+        _onNext: function(x) {
+            return onNext(project(x));
+        }
+    });
 };

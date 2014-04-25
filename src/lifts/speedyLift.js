@@ -3,13 +3,10 @@ var Rx = require('../rx'),
     subscriberCreate = Rx.Subscriber.create;
 
 module.exports = function speedyLift(transform) {
-    var source = this,
-        getSubscriber = transform();
+    var source = this;
     return create(this, {
-        subscribe: function subscribe(subscriber) {
-            subscriber = (subscriber && typeof subscriber === 'object') ?
-                subscriber : subscriberCreate.apply(null, arguments);
-            return source.subscribe(create(subscriber, getSubscriber(subscriber)));
+        _subscribe: function subscribe(destination) {
+            return source.subscribe(transform(destination));
         }
     });
-}
+};

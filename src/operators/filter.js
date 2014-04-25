@@ -1,11 +1,10 @@
 module.exports = function filter(selector) {
-    return function(destination) {
-        return {
-            onNext: function(x) {
-                if(selector(x)) {
-                    return destination.onNext(x);
-                }
+    var onNext = this._onNext.bind(this);
+    return this.clone({
+        _onNext: function(x) {
+            if(selector(x)) {
+                onNext(x);
             }
-        };
-    };
-};
+        }
+    });
+}

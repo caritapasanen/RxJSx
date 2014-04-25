@@ -1,13 +1,22 @@
-function fixDisposable(subscriber, disposable) {
-    var disposableType;
-    if(disposable != null && subscriber !== disposable) {
-        if((disposableType = typeof disposable) === 'function') {
-            return subscriber.add({ dispose: disposable.bind(subscriber) });
-        } else if(disposableType === 'object') {
-            return subscriber.add(disposable);
+var Subscriber = require('./Subscriber'),
+    subscriberCreate = Subscriber.create,
+    isArray = Array.isArray;
+
+function fixDisposable(downstream, upstream) {
+    if(downstream.stopped === true) {
+        if(upstream && upstream !== downstream) {
+            downstream.add(upstream)
         }
+        return downstream.dispose();
     }
-    return subscriber;
+    var type = upstream && upstream !== downstream && typeof upstream;
+    if(type === 'function' || type === 'object') {
+        if(upstream.stopped === true) {
+            return downstream.dispose();
+        }
+        return downstream.add(upstream);
+    }
+    return downstream;
 }
 
 function Observable(subscribe) {
@@ -19,11 +28,11 @@ Observable.create = function(subscribe) {
 };
 
 function subscribe(subscriber) {
-    return fixDisposable(subscriber, this._subscribe(subscriber));
+    return fixDisposable(subscriber, this._subscribe(subscriber.activate()));
 }
 
 Observable.prototype.subscribe = Observable.prototype.forEach = function(subscriber) {
-    return subscribe.call(this, subscriber);
+    return subscribe.call(this, (subscriber && typeof subscriber === 'object') ? subscriber : subscriberCreate.apply(null, arguments));
 };
 
 module.exports = Observable;
