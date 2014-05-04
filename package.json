@@ -19,7 +19,7 @@
     }
   ],
   "jam": {
-    "main": "rx.js"
+    "main": "src/rx.time.js"
   },
   "dependencies": {},
   "devDependencies": {
@@ -42,7 +42,7 @@
     "Reactive",
     "Events"
   ],
-  "main": "rx.js",
+  "main": "src/rx.time",
   "node": "src/rx.js",
   "scripts": {
     "test": "node demo"

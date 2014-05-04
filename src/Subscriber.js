@@ -1,29 +1,27 @@
 var Disposable = require('./Disposable'),
-    create = require('./support/create'),
-    inherits = require('util').inherits,
-    slice = Array.prototype.slice
-    ;
+    extend = require('./support/extend');
 
 function Subscriber(onNext, onError, onCompleted) {
-    this.stopped = false;
     this.disposed = false;
+    this.stopped = false;
     
-    this._onNext = onNext.bind(this);
-    this._onError = onError.bind(this);
-    this._onCompleted = onCompleted.bind(this);
-    this._disposable = Disposable.create();
+    this._onNext = onNext;
+    this._onError = onError;
+    this._onCompleted = onCompleted;
+    
+    return Disposable.call(this);
 };
 
 Subscriber.create = function(onNext, onError, onCompleted) {
     return new Subscriber(onNext, onError, onCompleted);
 };
 
-Subscriber.prototype.clone = function(overrides) {
-    return create(this, overrides);
+Subscriber.prototype.lift = function(upstream) {
+    return Subscriber.call(extend(this, upstream));
 };
 
 Subscriber.prototype.onNext = function(value) {
-    if(this.disposed === false) {
+    if(this.stopped === false) {
         try {
             if(typeof this._onNext !== 'undefined') {
                 this._onNext(value);
@@ -32,10 +30,10 @@ Subscriber.prototype.onNext = function(value) {
             this.onError(e);
         }
     }
-};
+}
 
 Subscriber.prototype.onError = function(error) {
-    if(this.disposed === false) {
+    if(this.stopped === false) {
         this.stopped = true;
         try {
             if(typeof this._onError !== 'undefined') {
@@ -43,12 +41,14 @@ Subscriber.prototype.onError = function(error) {
             }
         } catch(e) {
             throw e;
+        } finally {
+            this.dispose();
         }
     }
-};
+}
 
 Subscriber.prototype.onCompleted = function() {
-    if(this.disposed === false) {
+    if(this.stopped === false) {
         this.stopped = true;
         try {
             if(typeof this._onCompleted !== 'undefined') {
@@ -56,67 +56,64 @@ Subscriber.prototype.onCompleted = function() {
             }
         } catch(e) {
             throw e;
+        } finally {
+            this.dispose();
         }
     }
-};
+}
 
 Subscriber.prototype.activate = function() {
     this.stopped = false;
-    this.disposed = false;
     return this;
 }
 
+var dispose = Disposable.prototype.dispose;
 Subscriber.prototype.dispose = function() {
     if(this.disposed === false) {
         this.stopped = true;
         this.disposed = true;
         try {
-            this._disposable.dispose();
+            dispose.call(this);
         } catch(e) {
             throw e;
         }
     }
     return this;
 };
-
-Subscriber.prototype.add = function() {
-    var disposable = this._disposable;
-    disposable.add.apply(disposable, arguments);
-    if(this.disposed === true) {
-        disposable.dispose();
-    }
-    return this;
-};
-
-Subscriber.prototype.remove = function() {
-    var disposable = this._disposable;
-    disposable.remove.apply(disposable, arguments);
-    return this;
-};
+Subscriber.prototype.add = Disposable.prototype.add;
+Subscriber.prototype.remove = Disposable.prototype.remove;
 
 Subscriber.prototype.toImmutable = function() {
-    return new Subscriber(this._onNext, this._onError, this._onCompleted);
+    return new Subscriber(
+        this.onNext,
+        this.onError,
+        this.sonCompleted
+    );
 }
 
 Subscriber.prototype.toMutable = function() {
-    return new MutableSubscriber(this._onNext, this._onError, this._onCompleted);
+    return new MutableSubscriber(
+        this.onNext,
+        this.onError,
+        this.onCompleted
+    );
 }
 
-inherits(MutableSubscriber, Subscriber);
+MutableSubscriber.prototype = new Subscriber();
 
 function MutableSubscriber() {
     Subscriber.apply(this, arguments);
 };
 
-MutableSubscriber.prototype.clone = function(overrides) {
-    if(overrides._onNext) {
-        this._onNext = overrides._onNext;
+MutableSubscriber.prototype.lift = function(overrides) {
+    if(overrides.onNext) {
+        this._onNext = overrides.onNext;
     }
-    if(overrides._onError) {
-        this._onError = overrides._onError;
+    if(overrides.onError) {
+        this._onError = overrides.onError;
     }
-    if(overrides._onCompleted) {
-        this._onCompleted = overrides._onCompleted;
+    if(overrides.onCompleted) {
+        this._onCompleted = overrides.onCompleted;
     }
     return this;
 };
