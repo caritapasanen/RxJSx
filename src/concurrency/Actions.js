@@ -55,7 +55,7 @@ function invokeMicrotask() {
         // if we run microtasks on Web Workers or separate node
         // processes? Need to investigate.
         // if(this.disposed === false) {
-        return (d = this._work(this._state, sched)) ?
+        return (d = this._work(sched, this._state)) ?
             d.add(this) :
             this.dispose();
         // }
@@ -104,7 +104,7 @@ function invokeMacrotask() {
         task._id = undefined;
         task._clear(id);
         if(task.disposed === false) {
-            return (d = task._work(task._state, sched)) ?
+            return (d = task._work(sched, task._state)) ?
                 d.add(task) :
                 task.dispose();
         }

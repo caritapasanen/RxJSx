@@ -1,28 +1,28 @@
 
 var Scheduler = require('./src/Scheduler');
 
-Scheduler.instance.async = true;
+// Scheduler.instance.async = true;
 
-var i = -1;
-while(++i < 5) {
-    Scheduler.schedule("hi.", function(state, scheduler) {
-        console.log('scheduled', state);
-    });
-}
+Scheduler.schedule({message: "hi", count: 0}, function sayHi(scheduler, state) {
+    console.log('scheduled', state.message + '.');
+    if(++state.count < 5) {
+        state.message += "i";
+        return Scheduler.schedule(state, sayHi);
+    }
+});
 
-Scheduler.schedule("hi again.", function(state, scheduler) {
+Scheduler.schedule("hi again.", function(scheduler, state) {
     console.log('scheduled', state);
 });
 
-i = 0;
+var startTime = Scheduler.now();
 
-(function futureHi(scheduler, startTime) {
-    scheduler.schedule(1000, "another hi.", function(state, scheduler) {
-        console.log('scheduled', state, 'welcome to ' + (Date.now() - startTime) + 'ms into the future.');
-        while(++i < 5) {
-            return futureHi(scheduler, startTime);
-        }
-    });
-})(Scheduler, Date.now());
+Scheduler.schedule(1000, {message: "hi", count: 0}, function sayFutureHi(scheduler, state) {
+    console.log(state.message + "!", 'welcome to', (scheduler.now() - startTime) + 'ms into the future.');
+    if(++state.count < 5) {
+        state.message += "i";
+        return scheduler.schedule(1000, state, sayFutureHi);
+    }
+});
 
 console.log("this message should print first if the scheduler is async.");

@@ -120,7 +120,7 @@ function resolve() {
                 if(isArray(d)) {
                     a[i] = add.apply(new Disposable(disposeAll), d);
                 } else if(d.disposed !== true) {
-                    a[i] = add.call(new Disposable(disposeAll), d);
+                    a[i] = d;
                 }
             }
         }

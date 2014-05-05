@@ -42,6 +42,8 @@ Scheduler.prototype.workerFactory = new ObjectPool(
     createMicrotaskWorker, recycleMicrotaskWorker, disposeOf
 );
 
+Scheduler.now = now;
+
 // define -shared- default macro/microtask priority queues.
 Scheduler.macrotaskQueue = new PriorityQueue();
 Scheduler.pendingMacrotaskQueue = new PriorityQueue();
@@ -230,7 +232,7 @@ function scheduleExecutionContext(scheduler, taskFactory, task) {
     .invoke();
 }
 
-function executeContext(state, scheduler) {
+function executeContext(scheduler, state) {
     
     var start = scheduler.now(), frametime = scheduler.frametime;
     

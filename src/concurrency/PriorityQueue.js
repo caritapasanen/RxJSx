@@ -107,6 +107,8 @@ priorityProto.empty = function() {
 
 priorityProto.append = function(tail) {
     if(tail) {
+        this.items.length = this.length;
+        tail.items.length = tail.length;
         this.items = this.items.concat(tail.items);
         this.length += tail.length;
     }
