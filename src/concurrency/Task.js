@@ -2,12 +2,12 @@ var Disposable = require('../Disposable'),
     extend = require('../support/extend')
     Immediate = require('../support/immediate');
 
-Action.prototype = extend({}, Disposable.prototype);
-Action.prototype.compareTo = compareTo;
+Task.prototype = extend(Disposable.prototype);
+Task.prototype.compareTo = compareTo;
 
-function Action(scheduler, work, time, state, compare) {
+function Task(scheduler, work, time, state, compare) {
     
-    var action = this;
+    var task = this;
     
     this._scheduler = scheduler;
     this._work = work;
@@ -16,15 +16,15 @@ function Action(scheduler, work, time, state, compare) {
     this._compare = compare;
     this._invoked = false;
     
-    return Disposable.call(this, function dispose() {
-        delete action._scheduler;
-        delete action._work;
-        delete action._time;
-        delete action._state;
-        delete action._compare;
-        delete action._invoked;
-        delete action._id;
-        delete action._clear;
+    return Disposable.call(this).add(function() {
+        delete task._scheduler;
+        delete task._work;
+        delete task._time;
+        delete task._state;
+        delete task._compare;
+        delete task._invoked;
+        delete task._id;
+        delete task._clear;
     });
 };
 
@@ -32,11 +32,11 @@ function compareTo(other) {
     return this._compare(this._time, other._time);
 }
 
-MicrotaskAction.prototype = extend({}, Action.prototype);
-MicrotaskAction.prototype.invoke = invokeMicrotask;
+Microtask.prototype = extend(Task.prototype);
+Microtask.prototype.invoke = invokeMicrotask;
 
-function MicrotaskAction() {
-    return Action.apply(this, arguments);
+function Microtask() {
+    return Task.apply(this, arguments);
 };
 
 function invokeMicrotask() {
@@ -63,11 +63,11 @@ function invokeMicrotask() {
     return this;
 };
 
-MacrotaskAction.prototype = extend({}, Action.prototype);
-MacrotaskAction.prototype.invoke = invokeMacrotask;
+Macrotask.prototype = extend(Task.prototype);
+Macrotask.prototype.invoke = invokeMacrotask;
 
-function MacrotaskAction() {
-    return Action.apply(this, arguments);
+function Macrotask() {
+    return Task.apply(this, arguments);
 };
 
 function invokeMacrotask() {
@@ -118,7 +118,7 @@ function invokeMacrotask() {
 };
 
 module.exports = {
-    Action: Action,
-    MicrotaskAction: MicrotaskAction,
-    MacrotaskAction: MacrotaskAction
+    Task: Task,
+    Microtask: Microtask,
+    Macrotask: Macrotask
 };

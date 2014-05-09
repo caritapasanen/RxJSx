@@ -18,7 +18,9 @@ Scheduler.schedule("hi again.", function(scheduler, state) {
 var startTime = Scheduler.now();
 
 Scheduler.schedule(1000, {message: "hi", count: 0}, function sayFutureHi(scheduler, state) {
+    
     console.log(state.message + "!", 'welcome to', (scheduler.now() - startTime) + 'ms into the future.');
+    
     if(++state.count < 5) {
         state.message += "i";
         return scheduler.schedule(1000, state, sayFutureHi);

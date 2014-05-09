@@ -1,18 +1,18 @@
 var Disposable = require('./Disposable'),
-    Actions = require('./concurrency/Actions'),
+    Task = require('./concurrency/Task'),
     PriorityQueue = require('./concurrency/PriorityQueue'),
     ObjectPool = require('./concurrency/ObjectPool'),
     
     compare = require('./support/compare'),
     extend = require('./support/extend'),
     
-    MicrotaskAction = Actions.MicrotaskAction,
-    MacrotaskAction = Actions.MacrotaskAction,
+    Microtask = Task.Microtask,
+    Macrotask = Task.Macrotask,
     disposableEmpty = Disposable.E;
 
 module.exports = Scheduler;
 
-Scheduler.prototype = extend({}, Disposable.prototype);
+Scheduler.prototype = extend(Disposable.prototype);
 
 // we want to treat macrotasks like microtasks by default,
 // which means we'll attempt to process scheduled macrotasks
@@ -49,7 +49,7 @@ Scheduler.macrotaskQueue = new PriorityQueue();
 Scheduler.pendingMacrotaskQueue = new PriorityQueue();
 Scheduler.microtaskQueue = new PriorityQueue();
 
-MicrotaskScheduler.prototype = extend({}, Scheduler.prototype);
+MicrotaskScheduler.prototype = extend(Scheduler.prototype);
 MicrotaskScheduler.prototype.workerFactory = new ObjectPool(
     createWorker, recycleWorker, disposeOf
 );
@@ -69,6 +69,7 @@ Scheduler.microtask = MicrotaskScheduler.instance = new MicrotaskScheduler();
 // place a schedule method onto the Scheduler constructor
 // so the default scheduler is a little easier to access.
 Scheduler.schedule  = schedule.bind(Scheduler.instance);
+Scheduler.getWorker  = getWorker.bind(Scheduler.instance);
 
 function Scheduler(opts) {
     
@@ -158,7 +159,7 @@ function schedule(delay, state, work) {
     // schedule this worker function immediately with no state.
     if(argsLen === 1) {
         work = delay;
-        state = null;
+        state = undefined;
         delay = 0;
     }
     // schedule this worker function immediately with state.
@@ -350,19 +351,19 @@ function recycleMicrotaskWorker() {
 };
 
 function createMicrotask(scheduler, work, time, state, compare) {
-    return new MicrotaskAction(scheduler, work, time, state, compare);
+    return new Microtask(scheduler, work, time, state, compare);
 };
 
 function recycleMicrotask(scheduler, work, time, state, compare) {
-    return MicrotaskAction.call(this, scheduler, work, time, state, compare);
+    return Microtask.call(this, scheduler, work, time, state, compare);
 };
 
 function createMacrotask(scheduler, work, time, state, compare) {
-    return new MacrotaskAction(scheduler, work, time, state, compare);
+    return new Macrotask(scheduler, work, time, state, compare);
 };
 
 function recycleMacrotask(scheduler, work, time, state, compare) {
-    return MacrotaskAction.call(this, scheduler, work, time, state, compare);
+    return Macrotask.call(this, scheduler, work, time, state, compare);
 };
 
 function disposeOf(task) {
