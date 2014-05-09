@@ -1,14 +1,14 @@
 
 var Rx = require('./src/rx'),
     RxSpace = require('./src/rx.space'),
-    RxTime = require('./src/rx.time'),
+    // RxTime = require('./src/rx.time'),
     subscriber = Rx.Subscriber.create(
         function(i) { console.log(i); },
-        function(e) { console.error('error:', e); },
-        function()  { }
+        function(e) { console.error('error:', e.stack ? e.stack : e); },
+        function()  { console.log("==="); }
     );
 
-// demo(RxSpace.Observable.create);
+demo(RxSpace.Observable.create);
 // demo(RxTime.Observable.create );
 
 function getValues(observableCreate) {
@@ -23,27 +23,21 @@ function getValues(observableCreate) {
     });
 }
 
-function getInterval(observableCreate, time) {
+function getInterval(observableCreate, scheduler, time) {
     return observableCreate(function(subscriber) {
-        
-        var i = 0,
-            x = setInterval(function() {
-                if(++i <= 3) {
-                    subscriber.onNext({value: i});
-                } else {
-                    subscriber.onCompleted();
-                }
-            }, 100);
-        
-        return function dispose() {
-            clearInterval(x);
-        }
+        return scheduler.schedule(time, 0, function emitValue(scheduler, state) {
+            if(++state < 4) {
+                subscriber.onNext({value: state});
+                return scheduler.schedule(time, state, emitValue);
+            }
+            subscriber.onCompleted();
+        });
     });
 }
 
 function demo(observableCreate) {
     // var values = getValues(observableCreate),
-    var values = getInterval(observableCreate, 1000),
+    var values = getInterval(observableCreate, Rx.Scheduler, 100),
         valuesMap = values.map(function(x) {
             return JSON.stringify(x);
         }),
@@ -81,15 +75,15 @@ function demo(observableCreate) {
         });
     
     values              .toArray().subscribe(subscriber);
-    valuesMap           .toArray().subscribe(subscriber);
-    valuesFilter        .toArray().subscribe(subscriber);
-    valuesScan          .toArray().subscribe(subscriber);
-    valuesScanMap       .toArray().subscribe(subscriber);
-    valuesScanFilter    .toArray().subscribe(subscriber);
-    valuesScanFilterMap .toArray().subscribe(subscriber);
-    valuesLetScan       .toArray().subscribe(subscriber);
-    valuesMerge         .toArray().subscribe(subscriber);
-    valuesConcat        .toArray().subscribe(subscriber);
+    // valuesMap           .toArray().subscribe(subscriber);
+    // valuesFilter        .toArray().subscribe(subscriber);
+    // valuesScan          .toArray().subscribe(subscriber);
+    // valuesScanMap       .toArray().subscribe(subscriber);
+    // valuesScanFilter    .toArray().subscribe(subscriber);
+    // valuesScanFilterMap .toArray().subscribe(subscriber);
+    // valuesLetScan       .toArray().subscribe(subscriber);
+    // valuesMerge         .toArray().subscribe(subscriber);
+    // valuesConcat        .toArray().subscribe(subscriber);
     
     // values              .toArray().subscribe(subscriber.toImmutable());
     // valuesMap           .toArray().subscribe(subscriber.toImmutable());

@@ -1,8 +1,9 @@
 var Disposable = require('../Disposable'),
-    extend = require('../support/extend')
+    inherits = require('util').inherits,
     Immediate = require('../support/immediate');
 
-Task.prototype = extend(Disposable.prototype);
+inherits(Task, Disposable);
+
 Task.prototype.compareTo = compareTo;
 
 function Task(scheduler, work, time, state, compare) {
@@ -32,7 +33,7 @@ function compareTo(other) {
     return this._compare(this._time, other._time);
 }
 
-Microtask.prototype = extend(Task.prototype);
+inherits(Microtask, Task);
 Microtask.prototype.invoke = invokeMicrotask;
 
 function Microtask() {
@@ -63,7 +64,7 @@ function invokeMicrotask() {
     return this;
 };
 
-Macrotask.prototype = extend(Task.prototype);
+inherits(Macrotask, Task);
 Macrotask.prototype.invoke = invokeMacrotask;
 
 function Macrotask() {

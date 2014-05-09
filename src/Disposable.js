@@ -39,9 +39,9 @@ function dispose() {
         this.disposed = true;
         if(typeof this.disposeAction === 'function') {
             this.disposeAction();
-        } else {
+        }/* else {
             console.log('unexpected typeof disposeAction:', typeof this.disposeAction);
-        }
+        }*/
         this.disposeAction = undefined;
     }
     return this;

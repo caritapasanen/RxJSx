@@ -1,14 +1,32 @@
 var Observable = require('../Observable'),
-    observableEmpty = new Observable(completeImmediately);
-Observable.E = observableEmpty;
+    inherits = require('util').inherits,
+    staticEmpty;
 
-module.exports = function empty(scheduler) {
-    return !scheduler ?
-        observableEmpty : new Observable(function(subscriber) {
-            scheduler.schedule(completeImmediately, subscriber);
-        });
+inherits(EmptyObservable, Observable);
+
+function EmptyObservable(scheduler) {
+    this.scheduler = scheduler;
+    return Observable.call(this, subscribe);
 }
 
-function completeImmediately(subscriber) {
-    subscriber.onCompleted();
+function subscribe(s, state) {
+    var scheduler = state ? null : this.scheduler,
+        subscriber = state ? state : s;
+    return scheduler ?
+        scheduler.schedule(subscriber, subscribe) :
+        subscriber.onCompleted();
+}
+
+function subscribe(s, subscriber) {
+    var scheduler;
+    if(subscriber || !(scheduler = this.scheduler)) {
+        (subscriber || s).onCompleted();
+    }
+    return scheduler.schedule(s, subscribe);
+}
+
+staticEmpty = new EmptyObservable();
+
+module.exports = function empty(scheduler) {
+    return scheduler ? new EmptyObservable(scheduler) : staticEmpty;
 }

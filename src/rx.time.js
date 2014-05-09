@@ -1,8 +1,6 @@
 var Rx = require('./rx');
 
-function RxTime() {}
+Rx.Observable.prototype.lift = require('./observable/time/lift');
+// Rx.Subscriber.prototype.lift = require('./subscriber/time/lift');
 
-RxTime.Subscriber = Rx.Subscriber;
-RxTime.Observable = require('./time/Observable');
-
-module.exports = RxTime;
+module.exports = Rx;

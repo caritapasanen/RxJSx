@@ -1,121 +1,76 @@
 var Disposable = require('./Disposable'),
-    extend = require('./support/extend');
+    disposableDispose = Disposable.prototype.dispose,
+    inherits = require('util').inherits;
+
+inherits(Subscriber, Disposable);
+
+Subscriber.create = create;
+Subscriber.prototype.onNext = onNext;
+Subscriber.prototype.onError = onError;
+Subscriber.prototype.onCompleted = onCompleted;
+Subscriber.prototype.extend = extendSubscriber;
 
 function Subscriber(onNext, onError, onCompleted) {
-    this.disposed = false;
+    
     this.stopped = false;
     
     this._onNext = onNext;
     this._onError = onError;
     this._onCompleted = onCompleted;
     
-    return Disposable.call(this);
+    return Disposable.call(this, dispose);
 };
 
-Subscriber.create = function(onNext, onError, onCompleted) {
-    return new Subscriber(onNext, onError, onCompleted);
-};
+function create(a, b, c) {
+    return new Subscriber(a, b, c);
+}
 
-Subscriber.prototype.lift = function(upstream) {
-    return Subscriber.call(extend(this, upstream));
-};
+function extendSubscriber(a, b, c) {
+    return new Subscriber(a || this._onNext, b || this._onError, c || this._onCompleted).add(this);
+}
 
-Subscriber.prototype.onNext = function(value) {
-    if(this.stopped === false) {
-        try {
-            if(typeof this._onNext !== 'undefined') {
-                this._onNext(value);
-            }
-        } catch(e) {
-            this.onError(e);
+function onNext(x) {
+    try {
+        if(this.stopped === false && this._onNext) {
+            this._onNext(x);
         }
+    } catch(e) {
+        this.onError(e);
     }
 }
 
-Subscriber.prototype.onError = function(error) {
-    if(this.stopped === false) {
+function onError(e) {
+    try {
         this.stopped = true;
-        try {
-            if(typeof this._onError !== 'undefined') {
-                this._onError(error);
-            }
-        } catch(e) {
-            throw e;
-        } finally {
-            this.dispose();
+        if(this._onError) {
+            this._onError(e);
         }
+    } catch(e) {
+        throw e;
+    } finally {
+        this.dispose();
     }
 }
 
-Subscriber.prototype.onCompleted = function() {
-    if(this.stopped === false) {
+function onCompleted() {
+    try {
         this.stopped = true;
-        try {
-            if(typeof this._onCompleted !== 'undefined') {
-                this._onCompleted();
-            }
-        } catch(e) {
-            throw e;
-        } finally {
-            this.dispose();
+        if(this._onCompleted) {
+            this._onCompleted();
         }
+    } catch(e) {
+        throw e;
+    } finally {
+        this.dispose();
     }
 }
 
-Subscriber.prototype.activate = function() {
-    this.stopped = false;
-    return this;
-}
-
-var dispose = Disposable.prototype.dispose;
-Subscriber.prototype.dispose = function() {
+function dispose() {
     if(this.disposed === false) {
         this.stopped = true;
-        this.disposed = true;
-        try {
-            dispose.call(this);
-        } catch(e) {
-            throw e;
-        }
+        disposableDispose.call(this);
     }
     return this;
-};
-Subscriber.prototype.add = Disposable.prototype.add;
-Subscriber.prototype.remove = Disposable.prototype.remove;
-
-Subscriber.prototype.toImmutable = function() {
-    return new Subscriber(
-        this.onNext,
-        this.onError,
-        this.sonCompleted
-    );
 }
-
-Subscriber.prototype.toMutable = function() {
-    return new MutableSubscriber(
-        this.onNext,
-        this.onError,
-        this.onCompleted
-    );
-}
-
-MutableSubscriber.prototype = new Subscriber();
-
-function MutableSubscriber() {
-    Subscriber.apply(this, arguments);
-};
-
-MutableSubscriber.prototype.lift = function(overrides) {
-    if(overrides.onNext) {
-        this._onNext = overrides.onNext;
-    }
-    if(overrides.onError) {
-        this._onError = overrides.onError;
-    }
-    if(overrides.onCompleted) {
-        this._onCompleted = overrides.onCompleted;
-    }
-    return this;
-};
 
 module.exports = Subscriber;

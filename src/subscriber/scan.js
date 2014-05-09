@@ -1,4 +1,3 @@
-
 module.exports = function scan(seedOrProjection, project) {
     var onNext = this.onNext.bind(this),
         onCompleted = this.onCompleted.bind(this),
@@ -8,8 +7,8 @@ module.exports = function scan(seedOrProjection, project) {
         acc = seedOrProjection,
         project = project || seedOrProjection;
     
-    return this.lift({
-        _onNext: function(x) {
+    return this.extend(
+        function(x) {
             if(hasValue || (hasValue = hasSeed)) {
                 onNext(acc = project(acc, x));
             } else {
@@ -17,11 +16,12 @@ module.exports = function scan(seedOrProjection, project) {
                 onNext(acc = x);
             }
         },
-        _onCompleted: function() {
+        null,
+        function() {
             if(!hasValue && hasSeed) {
                 onNext(acc);
             }
             onCompleted();
         }
-    });
+    );
 };

@@ -1,3 +1,4 @@
+
 module.exports = function take(total) {
     
     var onNext = this.onNext.bind(this),
@@ -9,13 +10,11 @@ module.exports = function take(total) {
         return;
     }
     
-    return {
-        _onNext: function(x) {
-            if(++counter < total) {
-                onNext(x);
-            } else {
-                onCompleted();
-            }
+    return this.extend(function(x) {
+        if(++counter < total) {
+            onNext(x);
+        } else {
+            onCompleted();
         }
-    };
+    });
 }

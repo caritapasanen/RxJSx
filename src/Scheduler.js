@@ -4,7 +4,7 @@ var Disposable = require('./Disposable'),
     ObjectPool = require('./concurrency/ObjectPool'),
     
     compare = require('./support/compare'),
-    extend = require('./support/extend'),
+    inherits = require('util').inherits,
     
     Microtask = Task.Microtask,
     Macrotask = Task.Macrotask,
@@ -12,7 +12,7 @@ var Disposable = require('./Disposable'),
 
 module.exports = Scheduler;
 
-Scheduler.prototype = extend(Disposable.prototype);
+inherits(Scheduler, Disposable);
 
 // we want to treat macrotasks like microtasks by default,
 // which means we'll attempt to process scheduled macrotasks
@@ -49,7 +49,7 @@ Scheduler.macrotaskQueue = new PriorityQueue();
 Scheduler.pendingMacrotaskQueue = new PriorityQueue();
 Scheduler.microtaskQueue = new PriorityQueue();
 
-MicrotaskScheduler.prototype = extend(Scheduler.prototype);
+inherits(MicrotaskScheduler, Scheduler);
 MicrotaskScheduler.prototype.workerFactory = new ObjectPool(
     createWorker, recycleWorker, disposeOf
 );

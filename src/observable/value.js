@@ -1,28 +1,35 @@
-var Observable = require('../Observable');
+var Observable = require('../Observable'),
+    inherits = require('util').inherits;
 
-module.exports = function value(value, scheduler) {
-    return new Observable(function(subscriber) {
-        if(!scheduler) {
-            subscriber.onNext(value);
-            subscriber.onCompleted();
-        } else {
-            return scheduler.schedule(dispatch, {
-                t: "N",
-                v: value,
-                s: subscriber
-            });
-        }
-    });
+inherits(ValueObservable, Observable);
+
+function ValueObservable(value, scheduler) {
+    this.value = value;
+    this.scheduler = scheduler;
+    return Observable.call(this, subscribe);
 }
 
-function dispatch(state, scheduler) {
-    switch(state.t) {
-        case "N":
-            state.s.onNext(state.v);
-            state.t = "C";
-            return scheduler.schedule(dispatch, state);
-        default:
-            state.s.onCompleted();
-            break;
+function subscribe(s, state) {
+    var scheduler = state ? s : null,
+        subscriber = state ? state.subscriber : s;
+    
+    if(scheduler) {
+        if(state.phase === "N") {
+            state.phase = "C";
+            subscriber.onNext(state.value);
+            return scheduler.schedule(state, subscribe);
+        }
+        subscriber.onCompleted();
+    } else if(scheduler = this.scheduler) {
+        this.phase = "N";
+        this.subscriber = subscriber;
+        return scheduler.schedule(this, subscribe);
+    } else {
+        subscriber.onNext(this.value);
+        subscriber.onCompleted();
     }
+}
+
+module.exports = function value(value, scheduler) {
+    return new ValueObservable(value, scheduler);
 }

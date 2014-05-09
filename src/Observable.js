@@ -1,42 +1,14 @@
-var subscriberCreate = require('./Subscriber').create,
+var subscriberCreate = require('./subscriber/create'),
     noop = require('./support/noop');
 
-Observable.E = new Observable(noop);
-Observable.empty = empty;
-Observable.create = create;
-
-Observable.prototype.forEach = subscribe;
+Observable.prototype.forEach =
 Observable.prototype.subscribe = subscribe;
 
 module.exports = Observable;
 
-Observable.extend = function(transform) {
-    return function() {
-        var args = arguments;
-        return this.lift(function(destination) {
-            return transform.apply(destination, args);
-        });
-    };
-};
-
 function Observable(subscribe) {
     this._subscribe = subscribe;
 };
-
-function create(subscribe) {
-    return new Observable(subscribe);
-}
-
-function empty() {
-    return E;
-}
-
-function just(value) {
-    return new Observable(function(subscriber) {
-        subscriber.onNext(subscriber);
-        subscriber.onCompleted();
-    });
-}
 
 function subscribe(subscriber) {
     return fixDisposable(subscriber, this._subscribe(

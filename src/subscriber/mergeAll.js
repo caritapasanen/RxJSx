@@ -1,4 +1,3 @@
-
 module.exports = function mergeAll(concurrent) {
     var onNext = this.onNext.bind(this),
         onError = this.onError.bind(this),
@@ -11,8 +10,8 @@ module.exports = function mergeAll(concurrent) {
         concurrent = Number.Infinity;
     }
     
-    return this.lift({
-        _onNext: function(x) {
+    return this.extend(
+        function(x) {
             
             var j = ++i;
             console.log("merge onNext", j);
@@ -41,7 +40,8 @@ module.exports = function mergeAll(concurrent) {
                 }
             }));
         },
-        _onCompleted: function() {
+        null,
+        function() {
             console.log("merge onCompleted");
             if(this.length === 0 && buffer.length === 0) {
                 try {
@@ -51,7 +51,7 @@ module.exports = function mergeAll(concurrent) {
                 }
             }
         }
-    });
+    );
 }
 
 /*

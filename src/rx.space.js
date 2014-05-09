@@ -1,8 +1,6 @@
 var Rx = require('./rx');
 
-function RxSpace() {}
+Rx.Observable.prototype.lift = require('./observable/space/lift');
+// Rx.Subscriber.prototype.lift = require('./subscriber/space/lift');
 
-RxSpace.Subscriber = Rx.Subscriber;
-RxSpace.Observable = require('./space/Observable');
-
-module.exports = RxSpace;
+module.exports = Rx;
