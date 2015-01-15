@@ -2,7 +2,7 @@
 var Rx = require('rx/rx');
 
 function onNext(x) {
-    console.log(x.value, x.interval + "ms");
+    console.log(x.value + " " + x.interval + "ms");
 }
 
 function onError(e) {
@@ -42,10 +42,9 @@ if(true) {
     }
     
     if(true) {
-        console.log("interval", n);
+        console.log("range", n);
         Rx.Observable
-            .interval(0)
-            .take(n)
+            .range(0, n)
             .filter(even)
             .map(add1)
             .reduce(sum, 0)
@@ -60,7 +59,8 @@ if(true) {
     // In Array parlance: Take an Array containing n Arrays, each of length m,
     // and flatten it to an Array of length n x m.
     var n = 1000, m = 1000;
-    var a = build(m, n);
+    var a = buildArray(n);
+    var b = buildArray(m)
     
     function build(m, n) {
         var a = new Array(n);
@@ -82,23 +82,17 @@ if(true) {
         console.log("flatMap fromArray", n, "x", m)
         Rx.Observable
             .fromArray(a)
-            .flatMap(Rx.Observable.fromArray)
+            .flatMap(Rx.Observable.fromArray(b))
             .reduce(sum, 0)
             .timeInterval()
             .subscribe(onNext, onError, onCompleted);
     }
     
     if(true) {
-        console.log("flatMap interval", n, "x", m)
+        console.log("flatMap range", n, "x", m)
         Rx.Observable
-            .interval(0)
-            .take(n)
-            .flatMap(function(i) {
-                i *= 1000;
-                return Rx.Observable
-                    .interval(0)
-                    .take(m);
-            })
+            .range(0, n)
+            .flatMap(Rx.Observable.range(0, m))
             .reduce(sum, 0)
             .timeInterval()
             .subscribe(onNext, onError, onCompleted);

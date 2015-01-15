@@ -16,20 +16,21 @@ module.exports = function mergeAll(dest, concurrent) {
                     function(x) { return dest.onNext(x);  },
                     function(e) { return dest.onError(e); },
                     function( ) {
-                        if(upstream.remove(inner).length < concurrent) {
+                        inner && upstream.remove(inner);
+                        if(upstream.length < concurrent) {
                             if(buffer.length > 0) {
                                 upstream.onNext(buffer.shift());
                             } else if(upstream.stopped === true && upstream.length === 0) {
                                 return dest.onCompleted();
                             }
                         }
-                        return true;
+                        return false;
                     }
                 );
                 inner && upstream.add(inner);
             }
         },
-        function(e) { return e.onError(e); },
+        null,
         function( ) {
             upstream.stopped = true;
             if(upstream.length === 0 && buffer.length === 0) {

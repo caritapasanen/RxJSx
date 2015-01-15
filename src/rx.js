@@ -12,6 +12,7 @@ Observable.empty     = require('rx/observable/empty');
 Observable.error     = require('rx/observable/error');
 Observable.fromArray = require('rx/observable/fromArray');
 Observable.interval  = require('rx/observable/interval');
+Observable.range     = require('rx/observable/range');
 Observable.never     = require('rx/observable/never');
 Observable.value     = require('rx/observable/value');
 Observable.create = 

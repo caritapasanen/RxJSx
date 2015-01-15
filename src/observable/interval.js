@@ -11,29 +11,24 @@ function IntervalObservable(period, scheduler) {
 }
 
 function subscribe(s, state) {
-    var scheduler  = state && s || this.scheduler,
+    
+    var scheduler  = state && s || undefined,
         subscriber = state && state.subscriber || s,
         period = state ? state.period : this.period,
-        value  = state ? state.value : 0;
+        value  = state ? state.value : -1;
     
-    if(period <= 0) {
-        while(subscriber.onNext(value++)) {}
-        return subscriber.onCompleted();
-    } else if(state) {
-        if(!subscriber.onNext(state.value++)) {
-            return subscriber.onCompleted();
-        }
+    if(scheduler) {
+        return subscriber.onNext(state.value = ++value) && scheduler.schedule(period, state, subscribe);
+    } else if(scheduler = this.scheduler) {
+        return !subscriber.disposed && scheduler.schedule(period, {
+            subscriber: subscriber, value: value, period: period
+        }, subscribe);
     } else {
-        state = {
-            subscriber: subscriber,
-            value: 0,
-            period: period
-        };
+        while(subscriber.onNext(++value)) {}
+        return subscriber.onCompleted();
     }
-    
-    return scheduler.schedule(period, state, subscribe);
 }
 
 module.exports = function interval(period, scheduler) {
-    return new IntervalObservable(period, scheduler || Scheduler);
+    return new IntervalObservable(period, (period > 0 || undefined) && (scheduler || Scheduler));
 }

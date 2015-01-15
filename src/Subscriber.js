@@ -32,11 +32,10 @@ Subscriber.prototype.create = function(n, e, c) {
 };
 
 /**
- * Return false to signal unsubscribe.
+ * Return false to signal unsubscribe, true to keep listening.
  */ 
 function onNext(x) {
-    return !(this.disposed || this.stopped) && (
-        (f = this._onNext) && (f = f(x)) || !(f === false));
+    return (f = this._onNext) && (f = f(x)) || !(f === false) || (this.dispose() && false);
 }
 
 /**
