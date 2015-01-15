@@ -1,7 +1,7 @@
-var concat = Array.prototype.concat,
-    slice = Array.prototype.slice,
-    isArray = Array.isArray
-    ;
+var array = [],
+    concat = array.concat,
+    slice = array.slice,
+    isArray = Array.isArray;
 
 module.exports = function spread(arguments) {
     return flatten(slice.call(arguments));
@@ -12,5 +12,5 @@ function flatten(x) {
 }
 
 function flatMap(x, f) {
-    return concat.apply([], x.map(f));
+    return concat.apply(array, x.map(f));
 }

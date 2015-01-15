@@ -1,4 +1,5 @@
-var Observable = require('../Observable'),
+
+var Observable = require('rx/Observable'),
     inherits = require('util').inherits;
 
 inherits(FromArrayObservable, Observable);
@@ -10,25 +11,24 @@ function FromArrayObservable(array, scheduler) {
 }
 
 function subscribe(schedulerOrSubscriber, state) {
-    var scheduler = state ? schedulerOrSubscriber : undefined,
-        subscriber = state ? state[0] : schedulerOrSubscriber,
-        i = state ? ++state[1] : -1,
-        array = state ? state[2] : this.array;
+    
+    var scheduler = state && schedulerOrSubscriber || undefined,
+        subscriber = state && state[0] || schedulerOrSubscriber,
+        i = state && ++state[1] || -1,
+        array = state && state[2] || this.array,
+        n = array.length;
     
     if(scheduler) {
-        if(i < array.length) {
-            subscriber.onNext(array[i]);
-            return scheduler.schedule(state, subscribe);
+        if(i < n) {
+            return subscriber.onNext(array[i]) && scheduler.schedule(state, subscribe);
         } else {
-            subscriber.onCompleted();
+            return subscriber.onCompleted();
         }
     } else if(scheduler = this.scheduler) {
-        return scheduler.schedule([subscriber, i, array], subscribe);
+        return !subscriber.disposed && scheduler.schedule([subscriber, i, array], subscribe);
     } else {
-        for(; ++i < array.length;) {
-            subscriber.onNext(array[i]);
-        }
-        subscriber.onCompleted();
+        while((++i < n) && subscriber.onNext(array[i])) {}
+        return subscriber.onCompleted();
     }
 }
 

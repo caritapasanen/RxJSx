@@ -1,18 +1,19 @@
-var Disposable = require('./Disposable'),
-    Task = require('./concurrency/Task'),
-    PriorityQueue = require('./concurrency/PriorityQueue'),
-    ObjectPool = require('./concurrency/ObjectPool'),
+
+var Disposable = require('rx/Disposable'),
+    Task = require('rx/concurrency/Task'),
+    PriorityQueue = require('rx/concurrency/PriorityQueue'),
+    ObjectPool = require('rx/concurrency/ObjectPool'),
     
-    compare = require('./support/compare'),
+    compare = require('rx/support/compare'),
     inherits = require('util').inherits,
     
     Microtask = Task.Microtask,
     Macrotask = Task.Macrotask,
-    disposableEmpty = Disposable.E;
-
-module.exports = Scheduler;
+    disposableEmpty = Disposable.empty();
 
 inherits(Scheduler, Disposable);
+
+module.exports = Scheduler;
 
 // we want to treat macrotasks like microtasks by default,
 // which means we'll attempt to process scheduled macrotasks
@@ -98,14 +99,13 @@ function Scheduler(opts) {
     // assign the values to our immediate instance to
     // optimize the hash-access/proto-walk time.
     this.async = async;
+    this.disposed = false;
     this.macrotaskFactory   = macrotaskFactory;
     this.microtaskFactory   = microtaskFactory;
     this.workerFactory      = workerFactory;
     this.macrotaskQueue = macrotaskQueue;
     this.microtaskQueue = microtaskQueue;
     this.pendingMacrotaskQueue = pendingMacrotaskQueue;
-    
-    return Disposable.call(this);
 }
 
 function MicrotaskScheduler() {
@@ -185,7 +185,7 @@ function schedule(delay, state, work) {
         return (queue = this.macrotasks || this.macrotaskQueue)
             .enqueue(task = (taskFactory = this.macrotaskFactory)
                 .request(this, work, now + delay, state, compare))
-            .add(disposeAction)
+            .add(Disposable.create(disposeAction))
             .invoke();
     }
     
@@ -208,13 +208,13 @@ function schedule(delay, state, work) {
         return queue
             .enqueue(task = (taskFactory = this.microtaskFactory)
                 .request(this, work, now, state, compare))
-            .add(disposeAction);
+            .add(Disposable.create(disposeAction));
     }
     
     (queue = this.macrotasks = this.macrotaskQueue)
         .enqueue(task = (taskFactory = this.microtaskFactory)
             .request(this, work, now, state, compare))
-        .add(disposeAction);
+        .add(Disposable.create(disposeAction));
     
     return scheduleExecutionContext(this);
     
@@ -229,7 +229,7 @@ function scheduleExecutionContext(scheduler, taskFactory, task) {
             scheduler.macrotaskFactory :
             scheduler.microtaskFactory))
     .request(scheduler, executeContext, scheduler.now(), null, scheduler.compare))
-    .add(taskFactory.release.bind(taskFactory, task))
+    .add(Disposable.create(taskFactory.release.bind(taskFactory, task)))
     .invoke();
 }
 

@@ -1,4 +1,5 @@
-var Observable = require('../Observable'),
+var Observable = require('rx/Observable'),
+    Subscriber = require('rx/Subscriber'),
     inherits = require('util').inherits;
 
 inherits(ValueObservable, Observable);
@@ -10,26 +11,26 @@ function ValueObservable(value, scheduler) {
 }
 
 function subscribe(s, state) {
-    var scheduler = state ? s : null,
+    var scheduler  = state ? s : null,
         subscriber = state ? state.subscriber : s;
     
     if(scheduler) {
         if(state.phase === "N") {
             state.phase = "C";
-            subscriber.onNext(state.value);
-            return scheduler.schedule(state, subscribe);
+            if(subscriber.onNext(state.value)) {
+                return scheduler.schedule(state, subscribe);
+            }
         }
-        subscriber.onCompleted();
+        return subscriber.onCompleted();
     } else if(scheduler = this.scheduler) {
         this.phase = "N";
         this.subscriber = subscriber;
-        return scheduler.schedule(this, subscribe);
+        return !subscriber.disposed && scheduler.schedule(this, subscribe);
     } else {
-        subscriber.onNext(this.value);
-        subscriber.onCompleted();
+        return subscriber.onNext(this.value) && subscriber.onCompleted();
     }
 }
 
-module.exports = function value(value, scheduler) {
+module.exports = function(value, scheduler) {
     return new ValueObservable(value, scheduler);
-}
+};

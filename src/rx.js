@@ -1,28 +1,32 @@
 function Rx() {}
 
-var Observable = Rx.Observable = require('./Observable'),
-    Subscriber = Rx.Subscriber = require('./Subscriber'),
-    Disposable = Rx.Disposable = require('./Disposable'),
-    Scheduler = Rx.Scheduler = require('./Scheduler'),
-    observableProto  = Rx.Observable.prototype;
+var Observable = Rx.Observable = require('rx/Observable'),
+    Subscriber = Rx.Subscriber = require('rx/Subscriber'),
+    Scheduler  = Rx.Scheduler  = require('rx/Scheduler'),
+    observableProto = Observable.prototype,
+    subscriberProto = Subscriber.prototype;
 
-var extend = Observable.extend = require('./observable/extend');
+var extend = Observable.extend = require('rx/observable/extend');
 
-Observable.create    = require('./observable/create');
-Observable.empty     = require('./observable/empty');
-Observable.error     = require('./observable/error');
-Observable.never     = require('./observable/never');
-Observable.value     = require('./observable/value');
-Observable.fromArray = require('./observable/fromArray');
-
-// Subscriber.create = require('./subscriber/create');
-
-observableProto.let  = require('./observable/let');
-observableProto.map        = extend(require('./subscriber/map'));
-observableProto.filter     = extend(require('./subscriber/filter'));
-observableProto.scan       = extend(require('./subscriber/scan'));
-observableProto.toArray    = extend(require('./subscriber/toArray'));
-observableProto.mergeAll   = extend(require('./subscriber/mergeAll'));
-observableProto.concatAll  = extend(require('./subscriber/concatAll'));
+Observable.empty     = require('rx/observable/empty');
+Observable.error     = require('rx/observable/error');
+Observable.fromArray = require('rx/observable/fromArray');
+Observable.interval  = require('rx/observable/interval');
+Observable.never     = require('rx/observable/never');
+Observable.value     = require('rx/observable/value');
+Observable.create = 
+observableProto.create       =        require('rx/observable/create');
+observableProto.lift         =        require('rx/observable/time-lift');
+observableProto.let          =        require('rx/operators/let');
+observableProto.map          = extend(require('rx/operators/map'));
+observableProto.flatMap      = extend(require('rx/operators/flatMap'));
+observableProto.filter       = extend(require('rx/operators/filter'));
+observableProto.scan         = extend(require('rx/operators/scan'));
+observableProto.reduce       = extend(require('rx/operators/reduce'));
+observableProto.take         = extend(require('rx/operators/take'));
+observableProto.timeInterval = extend(require('rx/operators/timeInterval'));
+observableProto.toArray      = extend(require('rx/operators/toArray'));
+observableProto.mergeAll     = extend(require('rx/operators/mergeAll'));
+observableProto.concatAll    = extend(require('rx/operators/concatAll'));
 
 module.exports = Rx;

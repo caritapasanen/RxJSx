@@ -1,5 +1,5 @@
-var Observable = require('../Observable'),
-    noop = require('../support/noop'),
+var Observable = require('rx/Observable'),
+    noop = require('rx/support/noop'),
     staticNever = new Observable(noop);
 
 module.exports = function never() {

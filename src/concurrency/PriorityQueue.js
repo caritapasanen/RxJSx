@@ -1,3 +1,4 @@
+
 var count = 0;
 
 function IndexedItem(id, value) {
@@ -6,7 +7,13 @@ function IndexedItem(id, value) {
 };
 
 IndexedItem.prototype.compareTo = function (other) {
-    var c = this.value.compareTo(other.value);
+    var c = this.value && this.value.compareTo;
+    if(typeof c === 'function') {
+        c = c.call(this.value, other.value);
+    } else {
+        throw c;
+    }
+    
     if (c === 0) {
         c = this.id - other.id;
     }

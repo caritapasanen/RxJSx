@@ -1,5 +1,4 @@
-var Observable = require('./Observable'),
-    globalScheduler = require('./Scheduler');
+var Observable = require('./Observable');
 
 Notification.createOnNext = createOnNext;
 Notification.createOnError = createOnError;
@@ -8,8 +7,6 @@ Notification.createOnCompleted = createOnCompleted;
 Notification.prototype = new Observable();
 Notification.prototype.accept = accept;
 Notification.prototype.toObservable = toObservable;
-
-module.exports = Notification;
 
 function Notification(kind, value, error) {
     this.kind = kind;
@@ -37,7 +34,7 @@ function accept(subscriber) {
 }
 
 function toObservable(scheduler) {
-    return new Observable(acceptSubscriber).observeOn(scheduler || globalScheduler);
+    return new Observable(acceptSubscriber).observeOn(scheduler);
 }
 
 function acceptSubscriber(subscriber) {
@@ -71,3 +68,5 @@ function acceptCallbacks(onNext, onError, onCompleted) {
     }
     return subscriber;
 }
+
+module.exports = Notification;

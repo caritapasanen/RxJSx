@@ -1,76 +1,63 @@
-var Disposable = require('./Disposable'),
-    disposableDispose = Disposable.prototype.dispose,
-    inherits = require('util').inherits;
+
+var Disposable = require('rx/Disposable'),
+    inherits = require('util').inherits, f;
 
 inherits(Subscriber, Disposable);
 
-Subscriber.create = create;
-Subscriber.prototype.onNext = onNext;
-Subscriber.prototype.onError = onError;
-Subscriber.prototype.onCompleted = onCompleted;
-Subscriber.prototype.extend = extendSubscriber;
-
 function Subscriber(onNext, onError, onCompleted) {
-    
-    this.stopped = false;
-    
     this._onNext = onNext;
     this._onError = onError;
     this._onCompleted = onCompleted;
-    
-    return Disposable.call(this, dispose);
+    this.stopped = false;
+    Disposable.call(this, dispose)
 };
 
-function create(a, b, c) {
-    return new Subscriber(a, b, c);
-}
+module.exports = Subscriber;
 
-function extendSubscriber(a, b, c) {
-    return new Subscriber(a || this._onNext, b || this._onError, c || this._onCompleted).add(this);
-}
+Subscriber.create = function(n, e, c) {
+    return new Subscriber(n, e, c);
+};
 
+Subscriber.prototype.onNext = onNext;
+Subscriber.prototype.onError = onError;
+Subscriber.prototype.onCompleted = onCompleted;
+
+Subscriber.prototype.create = function(n, e, c) {
+    var dest = this;
+    return new Subscriber(
+        n || function(x) { return dest.onNext(x); },
+        e || function(e) { return dest.onError(e); },
+        c || function( ) { return dest.onCompleted(); }
+    );
+};
+
+/**
+ * Return false to signal unsubscribe.
+ */ 
 function onNext(x) {
-    try {
-        if(this.stopped === false && this._onNext) {
-            this._onNext(x);
-        }
-    } catch(e) {
-        this.onError(e);
-    }
+    return !(this.disposed || this.stopped) && (
+        (f = this._onNext) && (f = f(x)) || !(f === false));
 }
 
+/**
+ * Return false to signal a successful unsubscribe.
+ */
 function onError(e) {
-    try {
-        this.stopped = true;
-        if(this._onError) {
-            this._onError(e);
-        }
-    } catch(e) {
-        throw e;
-    } finally {
-        this.dispose();
-    }
+    return !(this.disposed || this.stopped) && (this.stopped = true) &&
+        (f = this._onError) && ((f = f(e)) || (f === void 0)) && this.dispose() && false;
 }
 
+/**
+ * Return false to signal a successful unsubscribe.
+ */
 function onCompleted() {
-    try {
-        this.stopped = true;
-        if(this._onCompleted) {
-            this._onCompleted();
-        }
-    } catch(e) {
-        throw e;
-    } finally {
-        this.dispose();
-    }
+    return !(this.disposed || this.stopped) && (this.stopped = true) &&
+        (f = this._onCompleted) && ((f = f()) || (f === void 0)) && this.dispose() && false;
 }
 
 function dispose() {
-    if(this.disposed === false) {
-        this.stopped = true;
-        disposableDispose.call(this);
-    }
-    return this;
+    this.stopped = true;
+    delete this._onNext;
+    delete this._onError;
+    delete this._onCompleted;
 }
-
-module.exports = Subscriber;

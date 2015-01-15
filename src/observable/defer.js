@@ -1,4 +1,4 @@
-var Observable = require('../Observable'),
+var Observable = require('rx/Observable'),
     inherits = require('util').inherits;
 
 inherits(DeferObservable, Observable);

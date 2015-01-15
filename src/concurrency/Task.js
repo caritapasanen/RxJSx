@@ -1,44 +1,40 @@
-var Disposable = require('../Disposable'),
-    inherits = require('util').inherits,
-    Immediate = require('../support/immediate');
+
+var Disposable = require('rx/Disposable'),
+    Immediate = require('rx/support/immediate'),
+    inherits = require('util').inherits;
 
 inherits(Task, Disposable);
 
-Task.prototype.compareTo = compareTo;
-
 function Task(scheduler, work, time, state, compare) {
-    
     var task = this;
-    
-    this._scheduler = scheduler;
-    this._work = work;
-    this._time = time;
-    this._state = state;
-    this._compare = compare;
-    this._invoked = false;
-    
-    return Disposable.call(this).add(function() {
-        delete task._scheduler;
-        delete task._work;
-        delete task._time;
-        delete task._state;
-        delete task._compare;
-        delete task._invoked;
-        delete task._id;
-        delete task._clear;
+    task._scheduler = scheduler;
+    task._work = work;
+    task._time = time;
+    task._state = state;
+    task._compare = compare;
+    task._invoked = false;
+    return Disposable.call(task, function() {
+        task._scheduler = undefined;
+        task._work = undefined;
+        task._time = undefined;
+        task._state = undefined;
+        task._compare = undefined;
+        task._invoked = undefined;
+        task.disposed = true;
     });
 };
 
-function compareTo(other) {
+Task.prototype.compareTo = function(other) {
     return this._compare(this._time, other._time);
 }
 
 inherits(Microtask, Task);
-Microtask.prototype.invoke = invokeMicrotask;
 
 function Microtask() {
     return Task.apply(this, arguments);
 };
+
+Microtask.prototype.invoke = invokeMicrotask;
 
 function invokeMicrotask() {
     if(this.disposed === false) {
@@ -65,13 +61,15 @@ function invokeMicrotask() {
 };
 
 inherits(Macrotask, Task);
-Macrotask.prototype.invoke = invokeMacrotask;
 
 function Macrotask() {
     return Task.apply(this, arguments);
-};
+}
+
+Macrotask.prototype.invoke = invokeMacrotask;
 
 function invokeMacrotask() {
+    
     if(this.disposed === true) {
         return this;
     }
@@ -98,22 +96,21 @@ function invokeMacrotask() {
         execute();
     }
     
-    return task.add(dispose);
+    return task.add(Disposable.create(function() {
+        if(id || (id = task._id)) {
+            task._id = undefined;
+            task._clear(id);
+        }
+    }));
     
     function execute() {
         id = task._id;
         task._id = undefined;
         task._clear(id);
         if(task.disposed === false) {
-            return (d = task._work(sched, task._state)) ?
-                d.add(task) :
+            return (d = task._work(sched, task._state)) &&
+                d.add(task) ||
                 task.dispose();
-        }
-    }
-    function dispose() {
-        if(id = task._id) {
-            task._id = undefined;
-            task._clear(id);
         }
     }
 };
