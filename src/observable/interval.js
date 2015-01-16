@@ -25,7 +25,7 @@ function subscribe(s, state) {
         }, subscribe);
     } else {
         while(subscriber.onNext(++value)) {}
-        return subscriber.onCompleted();
+        return false;
     }
 }
 

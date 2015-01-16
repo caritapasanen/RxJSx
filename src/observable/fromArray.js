@@ -16,7 +16,7 @@ function subscribe(s, state) {
         subscriber = state && state[0] || s,
         i = state && state[1] || -1,
         array = state && state[2] || this.array,
-        n = array.length;
+        n = array.length, active;
     
     if(scheduler) {
         if((state[1] = ++i) < n) {
@@ -27,8 +27,8 @@ function subscribe(s, state) {
     } else if(scheduler = this.scheduler) {
         return !subscriber.disposed && scheduler.schedule([subscriber, ++i, array], subscribe);
     } else {
-        while((++i < n) && subscriber.onNext(array[i])) {}
-        return subscriber.onCompleted();
+        while((++i < n) && (active = subscriber.onNext(array[i]))) {}
+        return active && subscriber.onCompleted();
     }
 }
 

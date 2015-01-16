@@ -14,7 +14,8 @@ function subscribe(s, state) {
     var scheduler  = state && s || undefined,
         subscriber = state && state.subscriber || s,
         to   = state ? state.to   : this.to,
-        from = state ? state.from : this.from - 1;
+        from = state ? state.from : this.from - 1,
+        active;
     
     if(scheduler) {
         if((state.from = ++from) < to) {
@@ -27,8 +28,8 @@ function subscribe(s, state) {
             subscriber: subscriber, to: to, from: from
         }, subscribe);
     } else {
-        while((++from < to) && subscriber.onNext(from)) {}
-        return subscriber.onCompleted();
+        while((++from < to) && (active = subscriber.onNext(from))) {}
+        return active && subscriber.onCompleted();
     }
 }
 

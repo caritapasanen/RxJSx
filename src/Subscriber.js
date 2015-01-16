@@ -44,7 +44,7 @@ function onNext(x) {
         //    onNext function called dispose or not.
         // 2. If the return value is `false`, dispose of the Subscriber
         //    and return false.
-        (f(x) !== false ? 
+        ((f = f(x) !== false) ? 
             !this.disposed :
             !this.disposed && this.dispose() && false)
     );
@@ -64,7 +64,7 @@ function onError(e) {
             // Capture onError's return value.
             // 1. If the return value is not `false`, call dispose and return true.
             // 2. If the return value is `false`, return false.
-            (f(e) !== false) && (!!this.dispose() || true))
+            (f = f(e) !== false) && (!!this.dispose() || true))
     );
 }
 
@@ -82,7 +82,7 @@ function onCompleted() {
             // Capture onCompleted's return value.
             // 1. If the return value is not `false`, call dispose and return true.
             // 2. If the return value is `false`, return false.
-            (f() !== false) && (!!this.dispose() || true))
+            (f = f() !== false) && (!!this.dispose() || true))
     );
 }
 
