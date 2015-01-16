@@ -40,9 +40,8 @@ function onNext(x) {
         (f = this._onNext || false) &&
         // Capture onNext's return value.
         // 
-        // 1. If the return value is not `false`, check to see
-        //    if onNext called dispose. If it did, return false. If
-        //    it didn't, return true.
+        // 1. If the return value is not `false`, return whether the
+        //    onNext function called dispose or not.
         // 2. If the return value is `false`, dispose of the Subscriber
         //    and return false.
         (f(x) !== false ? 
@@ -56,14 +55,16 @@ function onNext(x) {
  */
 function onError(e) {
     return (
+        // Return false if we're alraedy stopped.
+        (this.stopped === false) &&
         // If we don't have an onError function, return `false`.
         (f = this._onError || false) && (
-        // Otherwise, set our stopped flag.
-        (this.stopped = true) &&
-        // Capture onError's return value.
-        // 1. If the return value is not `false`, call dispose and return true.
-        // 2. If the return value is `false`, return false.
-        (f = f(e) !== false) && (!!this.dispose() || true))
+            // Otherwise, set our stopped flag.
+            (this.stopped = true) &&
+            // Capture onError's return value.
+            // 1. If the return value is not `false`, call dispose and return true.
+            // 2. If the return value is `false`, return false.
+            (f(e) !== false) && (!!this.dispose() || true))
     );
 }
 
@@ -72,19 +73,21 @@ function onError(e) {
  */
 function onCompleted() {
     return (
+        // Return false if we're alraedy stopped.
+        (this.stopped === false) &&
         // If we don't have an onCompleted function, return `false`.
         (f = this._onCompleted || false) && (
-        // Otherwise, set our stopped flag.
-        (this.stopped = true) &&
-        // Capture onCompleted's return value.
-        // 1. If the return value is not `false`, call dispose and return true.
-        // 2. If the return value is `false`, return false.
-        (f = f() !== false) && (!!this.dispose() || true))
+            // Otherwise, set our stopped flag.
+            (this.stopped = true) &&
+            // Capture onCompleted's return value.
+            // 1. If the return value is not `false`, call dispose and return true.
+            // 2. If the return value is `false`, return false.
+            (f() !== false) && (!!this.dispose() || true))
     );
 }
 
 function dispose() {
-    // this.stopped = true;
+    this.stopped = true;
     delete this._onNext;
     delete this._onError;
     delete this._onCompleted;
