@@ -1,11 +1,11 @@
 
 module.exports = function take(dest, total) {
-    var counter = -1;
-    return (total > 0) && dest.create(function(x) {
+    var counter = -1, upstream;
+    return (total > 0) && (upstream = dest.create(function(x) {
         if(++counter < total) {
             return dest.onNext(x);
         } else {
-            return dest.onCompleted();
+            return upstream.dispose() && dest.onCompleted();
         }
-    }) || dest.onCompleted();
+    })) || (this.dispose() && dest.onCompleted());
 }

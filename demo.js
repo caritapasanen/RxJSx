@@ -98,3 +98,15 @@ if(true) {
             .subscribe(onNext, onError, onCompleted);
     }
 }
+
+if(true) {
+    console.log("interval", n);
+    Rx.Observable
+        .interval(1)
+        .take(n)
+        .filter(even)
+        .map(add1)
+        .reduce(sum, 0)
+        .timeInterval()
+        .subscribe(onNext, onError, onCompleted);
+}
