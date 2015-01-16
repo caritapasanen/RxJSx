@@ -22,6 +22,8 @@ function subscribe(n, e, c, subscriber) {
 function fixDisposable(upstream) {
     if((type = typeof upstream) === 'function') {
         upstream = Disposable.create(upstream);
+    } else if(upstream == null || type !== 'object') {
+        upstream = Disposable.empty();
     }
     return upstream;
 }

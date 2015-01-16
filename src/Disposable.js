@@ -1,6 +1,5 @@
 
-var spread = require('./support/spread'),
-    push = Array.prototype.push;
+var spread = require('rx/support/spread');
 
 function Disposable(dispose) {
     this._dispose = dispose;
@@ -15,21 +14,22 @@ Disposable.prototype.remove = remove;
 Disposable.prototype.dispose = dispose;
 Disposable.prototype.length = 0;
 
-var empty = new Disposable(function(){});
+var empty = new Disposable();
+empty.disposed = true;
 Disposable.empty = function() { return empty; };
 Disposable.create = function(dispose) {
     return new Disposable(dispose);
 };
 
-function dispose(f) {
+function dispose() {
     if(!this.disposed) {
         this.disposed = true;
+        var f, xs = this._disposables, i, n;
         (f = this._dispose) && f();
-        var xs = this._disposables, i = -1, n, x;
-        if(!!xs && (n = xs.length)) {
+        if(!!xs && (n = xs.length) && (i = -1)) {
             delete this._disposables;
             while(++i < n) {
-                (x = xs[i]) && x.dispose();
+                xs[i].dispose();
             }
             delete this._disposables;
         }
@@ -38,9 +38,16 @@ function dispose(f) {
 }
 
 function add() {
-    return (this.length = push.apply(
-        this._disposables || (this._disposables = []),
-        arguments)) && this || this;
+    var xs = this._disposables || (this._disposables = []),
+        ys = arguments, j = xs.length, i = -1, n = ys.length,
+        xd = this.disposed, x;
+    while(++i < n) {
+        (x = ys[i]) &&
+        (typeof x === 'object') &&
+        (!x.disposed) && (typeof x.dispose === 'function') && (
+            xd && x.dispose() || (xs[j++] = x));
+    }
+    return this;
 }
 
 function remove() {

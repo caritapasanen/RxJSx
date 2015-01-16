@@ -12,7 +12,8 @@ module.exports = function mergeAll(dest, concurrent) {
             if(upstream.length > concurrent) {
                 buffer.push(x);
             } else {
-                var inner = x.subscribe(
+                var inner;
+                upstream.add(inner = x.subscribe(
                     function(x) { return dest.onNext(x);  },
                     function(e) { return dest.onError(e); },
                     function( ) {
@@ -26,8 +27,7 @@ module.exports = function mergeAll(dest, concurrent) {
                         }
                         return false;
                     }
-                );
-                inner && upstream.add(inner);
+                ));
             }
         },
         null,
